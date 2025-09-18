@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "6177666065",
+    "project_id": "fluttertaskapp-e0ff1",
+    "storage_bucket": "fluttertaskapp-e0ff1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6177666065:android:b4c35142e9a23a3e166db0",
+        "android_client_info": {
+          "package_name": "com.example.flutter_task_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "6177666065-6f46brfejgkv5nodf3ou5u6qo98rn1l2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL1s7to67hWzVbUPZCfRH8zIxrRH1jB7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "6177666065-6f46brfejgkv5nodf3ou5u6qo98rn1l2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "6177666065-igqdpbdlk3uk3o0cpcqb3ibtfaqhhebt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterTaskApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
