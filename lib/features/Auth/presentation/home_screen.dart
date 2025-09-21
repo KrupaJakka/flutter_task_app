@@ -1,12 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../assessments/presentation/assessment_list_screen.dart';
+import '../../appointments/presentation/appointment_list_screen.dart';
 import '../providers/auth_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends ConsumerStatefulWidget {
+  final String userId;
+  const HomeScreen({super.key, required this.userId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _selectedIndex = 0;
+
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const AssessmentListScreen(),
+      AppointmentListScreen(userId: widget.userId),
+    ];
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(firebaseAuthStateProvider);
 
     return authState.when(
@@ -23,7 +50,25 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          body: const Center(child: Text('You are logged in.')),
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _screens[_selectedIndex],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.assignment),
+                label: 'Assessments',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today),
+                label: 'Appointments',
+              ),
+            ],
+          ),
         );
       },
       loading: () =>

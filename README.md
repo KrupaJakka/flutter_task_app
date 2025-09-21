@@ -120,4 +120,3 @@ flutter run
 - Clean, modular code with state management
 - README explaining setup, architecture, and features
 - Screenshots or screen recordings on multiple screen sizes
-- APK file for review

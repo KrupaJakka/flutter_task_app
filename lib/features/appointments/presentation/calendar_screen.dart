@@ -5,8 +5,14 @@ import '../data/appointment_model.dart';
 import '../data/appointment_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Provider for AppointmentRepository
+final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
+  return AppointmentRepository(FirebaseFirestore.instance);
+});
+
+/// StreamProvider for fetching all appointments
 final calendarAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {
-  final repo = AppointmentRepository(FirebaseFirestore.instance);
+  final repo = ref.watch(appointmentRepositoryProvider);
   return repo.getAppointments();
 });
 
@@ -22,6 +28,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  bool _isSameDate(Appointment appt, DateTime day) {
+    return appt.date.year == day.year &&
+        appt.date.month == day.month &&
+        appt.date.day == day.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     final appointmentsAsync = ref.watch(calendarAppointmentsProvider);
@@ -30,6 +42,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       appBar: AppBar(title: const Text('Appointment Calendar')),
       body: appointmentsAsync.when(
         data: (appointments) {
+          final dayAppointments = _selectedDay != null
+              ? appointments
+                    .where((appt) => _isSameDate(appt, _selectedDay!))
+                    .toList()
+              : [];
+
           return Column(
             children: [
               TableCalendar(
@@ -45,37 +63,47 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 },
               ),
               Expanded(
-                child: ListView(
-                  children: appointments
-                      .where(
-                        (appt) =>
-                            _selectedDay != null &&
-                            appt.date.year == _selectedDay!.year &&
-                            appt.date.month == _selectedDay!.month &&
-                            appt.date.day == _selectedDay!.day,
+                child: dayAppointments.isEmpty
+                    ? const Center(
+                        child: Text('No appointments for selected day'),
                       )
-                      .map(
-                        (appt) => ListTile(
-                          title: Text(appt.title),
-                          subtitle: Text(appt.date.toLocal().toString()),
-                          trailing: ElevatedButton(
-                            onPressed: () async {
-                              final repo = AppointmentRepository(
-                                FirebaseFirestore.instance,
-                              );
-                              await repo.bookAppointment(widget.userId, appt);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Appointment booked!'),
-                                ),
-                              );
-                            },
-                            child: const Text('Book'),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
+                    : ListView.builder(
+                        itemCount: dayAppointments.length,
+                        itemBuilder: (context, index) {
+                          final appt = dayAppointments[index];
+                          return ListTile(
+                            title: Text(appt.title),
+                            subtitle: Text(appt.date.toLocal().toString()),
+                            trailing: ElevatedButton(
+                              onPressed: () async {
+                                final repo = ref.read(
+                                  appointmentRepositoryProvider,
+                                );
+                                try {
+                                  await repo.bookAppointment(
+                                    widget.userId,
+                                    appt,
+                                  );
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Appointment booked!'),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error booking: $e'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text('Book'),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           );

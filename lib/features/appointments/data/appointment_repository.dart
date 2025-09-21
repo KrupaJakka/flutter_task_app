@@ -6,6 +6,7 @@ class AppointmentRepository {
 
   AppointmentRepository(this.firestore);
 
+  /// Returns a stream of all appointments, ordered by date
   Stream<List<Appointment>> getAppointments() {
     return firestore
         .collection('appointments')
@@ -18,12 +19,14 @@ class AppointmentRepository {
         );
   }
 
+  /// Books an appointment for a specific user
   Future<void> bookAppointment(String userId, Appointment appointment) async {
-    await firestore
+    final bookingRef = firestore
         .collection('users')
         .doc(userId)
         .collection('bookings')
-        .doc(appointment.id)
-        .set(appointment.toMap());
+        .doc(appointment.id);
+
+    await bookingRef.set(appointment.toMap());
   }
 }

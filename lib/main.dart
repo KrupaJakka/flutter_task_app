@@ -1,18 +1,24 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_task_app/features/Auth/presentation/home_screen.dart';
+import 'package:flutter_task_app/firebase_options.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/splash_screen.dart';
-import 'features/assessments/presentation/assessment_list_screen.dart';
-import 'features/appointments/presentation/appointment_list_screen.dart';
 import 'services/firebase_auth_service.dart';
 import 'core/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const ProviderScope(child: MyApp()),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
@@ -38,56 +44,6 @@ class MyApp extends ConsumerWidget {
           }
           return const LoginScreen();
         },
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
-  final String userId;
-  const HomeScreen({super.key, required this.userId});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _screens.addAll([
-      const AssessmentListScreen(),
-      AppointmentListScreen(userId: widget.userId),
-    ]);
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Assessments',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Appointments',
-          ),
-        ],
       ),
     );
   }

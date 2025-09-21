@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_task_app/features/assessments/presentation/assessment_list_screen.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -31,7 +32,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         emailController.text.trim(),
         passwordController.text.trim(),
       );
-      // On success, auth stream will update and SplashScreen route logic will handle navigation
+
+      // ✅ Navigate to AssessmentListScreen after login success
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AssessmentListScreen()),
+        );
+      }
     } catch (e) {
       setState(() => errorText = e.toString());
     }
@@ -46,6 +54,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         emailController.text.trim(),
         passwordController.text.trim(),
       );
+
+      // ✅ Navigate to AssessmentListScreen after signup success
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AssessmentListScreen()),
+        );
+      }
     } catch (e) {
       setState(() => errorText = e.toString());
     }
